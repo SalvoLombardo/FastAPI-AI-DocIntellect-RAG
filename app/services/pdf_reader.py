@@ -9,6 +9,9 @@ from io import BytesIO
 
 from app.utils.chunking import split_text_into_chunks
 
+from app.core.embeddings import get_embedding
+from app.services.chroma_service import add_chunk_to_chroma
+
 
 async def process_and_saving_uploaded_file(file: UploadFile, session: AsyncSession) -> str:
     # Reading file
@@ -29,7 +32,11 @@ async def process_and_saving_uploaded_file(file: UploadFile, session: AsyncSessi
     else:
         raise HTTPException(status_code=400, detail="Formato file non supportato.")
 
-    # creating the record docuemnt
+
+
+    #POSTGRES Section-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
+    
+    # creating the record docuemnt on *******POSTGRES********
     document = Document(
         id=str(uuid4()),
         filename=file.filename,
@@ -43,6 +50,7 @@ async def process_and_saving_uploaded_file(file: UploadFile, session: AsyncSessi
     chunks = split_text_into_chunks(text, chunk_size=500)
     document.num_chunks = len(chunks)
 
+
     #Saving chunks with enumerate, using i to have the right sequency of the chunks
     for i, chunk_text in enumerate(chunks):
         chunk = DocumentChunk(
@@ -52,6 +60,24 @@ async def process_and_saving_uploaded_file(file: UploadFile, session: AsyncSessi
             text=chunk_text
         )
         session.add(chunk)
+    #POSTGRES Section-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
+
+    
+    #CHROMADB Section*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+        #Creating the embedding
+        embedding= await (chunk_text)
+        
+        #Creating an id for Chroma
+        chroma_id=str(uuid4)
+        await add_chunk_to_chroma(
+            chunk_id=chroma_id,
+            text=chunk_text,
+            embedding=embedding,
+            metadata={"document_id": document.id, "chunk_index": i}
+        )
+    #CHROMADB Section*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+
 
     #Committing or rollback
     try:
