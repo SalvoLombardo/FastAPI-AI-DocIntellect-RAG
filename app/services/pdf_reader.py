@@ -7,6 +7,8 @@ import os
 import pdfplumber
 from io import BytesIO
 
+from app.utils.chunking import split_text_into_chunks
+
 
 async def process_uploaded_file(file: UploadFile, session: AsyncSession) -> str:
     # Reading file
@@ -38,7 +40,7 @@ async def process_uploaded_file(file: UploadFile, session: AsyncSession) -> str:
     session.add(document)
 
     # Chuncking the text and getting the len oof the chunks for later
-    chunks = _split_text_into_chunks(text, chunk_size=500)
+    chunks = split_text_into_chunks(text, chunk_size=500)
     document.num_chunks = len(chunks)
 
     #Saving chunks with enumerate, using i to have the right sequency of the chunks
@@ -89,14 +91,3 @@ def _extract_text_from_txt(content: bytes) -> str:
         return content.decode("utf-8")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error decoding TXT: {str(e)}")
-
-
-def _split_text_into_chunks(text: str, chunk_size: int = 500) -> list[str]:
-    words = text.split()
-    chunks = []
-
-    for i in range(0, len(words), chunk_size):
-        chunk = " ".join(words[i:i + chunk_size])
-        chunks.append(chunk)
-
-    return chunks
