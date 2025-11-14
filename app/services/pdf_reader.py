@@ -10,7 +10,7 @@ from io import BytesIO
 from app.utils.chunking import split_text_into_chunks
 
 
-async def process_uploaded_file(file: UploadFile, session: AsyncSession) -> str:
+async def process_and_saving_uploaded_file(file: UploadFile, session: AsyncSession) -> str:
     # Reading file
     try:
         content= await file.read()

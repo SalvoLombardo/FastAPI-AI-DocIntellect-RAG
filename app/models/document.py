@@ -19,7 +19,7 @@ class Document(Base):
     num_chunks = sa.Column(sa.Integer, default=0)
     metadata = sa.Column(JSONB, nullable=True) #Using JSONB Postgres special data for JSON style
     created_at = sa.Column(sa.DateTime(timezone=True), default=datetime.now(timezone.utc))
-    
+    status= sa.Column(sa.String(50), default='processing')#This record become 'ready' when the all data are saved including embeddings on ChromaDb
 
     chunks = relationship("DocumentChunk", back_populates="document", cascade="all, delete-orphan")
 
