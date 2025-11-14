@@ -17,9 +17,9 @@ class Document(Base):
     filename = sa.Column(sa.String(255), nullable=False)
     content_type = sa.Column(sa.String(100))
     num_chunks = sa.Column(sa.Integer, default=0)
-    metadata = sa.Column(JSONB, nullable=True)
+    metadata = sa.Column(JSONB, nullable=True) #Using JSONB Postgres special data for JSON style
     created_at = sa.Column(sa.DateTime(timezone=True), default=datetime.now(timezone.utc))
-    raw_text =sa.Column(sa.Text)
+    
 
     chunks = relationship("DocumentChunk", back_populates="document", cascade="all, delete-orphan")
 
@@ -30,8 +30,6 @@ class DocumentChunk(Base):
     document_id = sa.Column(UUID(as_uuid=False), sa.ForeignKey("documents.id", ondelete="CASCADE"), nullable=False, index=True)
     chunk_index = sa.Column(sa.Integer, nullable=False)
     text = sa.Column(sa.Text, nullable=False)
-    start_pos = sa.Column(sa.Integer, nullable=True)
-    end_pos = sa.Column(sa.Integer, nullable=True)
     chroma_id = sa.Column(sa.String(255), nullable=True, index=True)
     token_count = sa.Column(sa.Integer, nullable=True)
     created_at = sa.Column(sa.DateTime(timezone=True), default=datetime.now(timezone.utc))
