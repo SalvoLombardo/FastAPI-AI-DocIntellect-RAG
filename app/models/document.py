@@ -1,7 +1,7 @@
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import registry, relationship
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 mapper_registry = registry()
@@ -18,7 +18,7 @@ class Document(Base):
     content_type = sa.Column(sa.String(100))
     num_chunks = sa.Column(sa.Integer, default=0)
     metadata = sa.Column(JSONB, nullable=True)
-    created_at = sa.Column(sa.DateTime(timezone=True), default=datetime.utcnow)
+    created_at = sa.Column(sa.DateTime(timezone=True), default=datetime.now(timezone.utc))
     raw_text =sa.Column(sa.Text)
 
     chunks = relationship("DocumentChunk", back_populates="document", cascade="all, delete-orphan")
@@ -34,6 +34,6 @@ class DocumentChunk(Base):
     end_pos = sa.Column(sa.Integer, nullable=True)
     chroma_id = sa.Column(sa.String(255), nullable=True, index=True)
     token_count = sa.Column(sa.Integer, nullable=True)
-    created_at = sa.Column(sa.DateTime(timezone=True), default=datetime.utcnow)
+    created_at = sa.Column(sa.DateTime(timezone=True), default=datetime.now(timezone.utc))
 
     document = relationship("Document", back_populates="chunks")
