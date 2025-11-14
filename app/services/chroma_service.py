@@ -14,4 +14,8 @@ async def add_chunk_to_chroma(chunk_id: str, text: str, embedding: list[float], 
     )
 
 
+async def query_chroma(embedding: list[float], top_k: int =5):
+    results=collection.query(query_embeddings=[embedding], n_results= top_k)
+
+    return results
     

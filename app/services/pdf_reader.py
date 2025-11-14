@@ -35,8 +35,7 @@ async def process_and_saving_uploaded_file(file: UploadFile, session: AsyncSessi
 
 
     #POSTGRES Section-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
-    
-    # creating the record docuemnt on *******POSTGRES********
+    # creating the record docuemnt on POSTGRES
     document = Document(
         id=str(uuid4()),
         filename=file.filename,
@@ -49,7 +48,6 @@ async def process_and_saving_uploaded_file(file: UploadFile, session: AsyncSessi
     # Chuncking the text and getting the len oof the chunks for later
     chunks = split_text_into_chunks(text, chunk_size=500)
     document.num_chunks = len(chunks)
-
 
     #Saving chunks with enumerate, using i to have the right sequency of the chunks
     for i, chunk_text in enumerate(chunks):
