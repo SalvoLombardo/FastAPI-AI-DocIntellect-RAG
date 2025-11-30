@@ -1,0 +1,5 @@
+venv/
+venv310/
+venv311/
+.envvenv311/
+.env
